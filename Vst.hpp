@@ -17,17 +17,19 @@
 
 class Vst{
 public:
+    static Vst* getInstance();
     
-    //ofSerial createSerial();
     void setup();
-    //void setup(ofSerial serial);
     void display();
     void line(float bright, float x0, float y0, float x1, float y1);
     void line(float bright, ofVec3f p0, ofVec3f p1);
     bool vectorOffscreen(float x, float y);
     void point(float bright, ofVec3f v);
     void rect(float bright, float x, float y, float w, float h);
+    void circle(float bright, float center_x, float center_y, float size, int num_pnts);
     void shape(float bright, vector<ofVec2f> &pnts, bool connect);
+    void shape(float bright, vector<ofPoint> &pnts, bool connect);
+    
     void displayBuffer();
     
     ofVec3f vstToScreen(VstFrame f);
@@ -41,12 +43,16 @@ public:
     bool displayTransit;
     bool send_to_display;
     VstBuffer buffer;
-    //private PApplet parent;
     
 private:
+    Vst();
+    static Vst* instance;
+    
     Clipping clip;
     int lastX;
     int lastY;
+    
+    
 };
 
 #endif /* Vst_hpp */

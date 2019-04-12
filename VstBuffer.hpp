@@ -31,7 +31,7 @@ private:
     const static int HEADER_LENGTH = 4;
     const static int TAIL_LENGTH = 3;
     const static int MAX_FRAMES = (LENGTH - HEADER_LENGTH - TAIL_LENGTH - 1) / 4;
-    char buffer[8192];// = new byte[8192];
+    unsigned char buffer[8192];// = new byte[8192];
     ofSerial serial;
     
     

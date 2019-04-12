@@ -7,40 +7,25 @@
 
 #include "Vst.hpp"
 
-/*
-ofSerial Vst::createSerial(){
-    // finding the right port requires picking it from the list
-    // should look for one that matches "ttyACM*" or "tty.usbmodem*"
-    ofSerial serial;
-    serial.listDevices();
-    vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
+Vst* Vst::instance = NULL;
+
+Vst* Vst::getInstance()
+{
+    if (instance == NULL)
+    {
+        instance = new Vst();
+    }
     
-    int baud = 9600;
-    serial.setup(0, baud); //open the first device
-    
-    //Andy test
-    unsigned char myByte = 225;
-    bool byteWasWritten = serial.writeByte(myByte);
-    if ( !byteWasWritten )
-        printf("byte was not written to serial port");
-    //test done
-    cout<<"TEST DONE"<<endl;
-    
-//    for (String port : Serial.list()) {
-//        println(port);
-//        if (match(port, "usbmode|ACM") == null) {
-//            continue;
-//        }
-//        return new Serial(this, port, 9600);
-//    }
-//
-//    println("No valid serial ports found?\n");
-    return serial;
+    return instance;
 }
- */
+
+
+Vst::Vst(){
+    setup();
+}
 
 void Vst::setup() {
-    buffer.createSerial();// setSerial(createSerial());
+    buffer.createSerial();
     clip.setup(ofVec3f(0, 0), ofVec3f(ofGetWidth() - 1, ofGetHeight() - 1));
     
     colorNormal = ofColor(128, 128, 128, 80);
@@ -50,10 +35,6 @@ void Vst::setup() {
     send_to_display = false;
 }
 
-//void Vst::setup(ofSerial serial) {
-//    buffer.setSerial(serial);
-//    setup();
-//}
 
 void Vst::display() {
     buffer.update();
@@ -151,16 +132,29 @@ void Vst::shape(float bright, vector<ofVec2f> &pnts, bool connect){
     if (connect){
         line(bright, pnts[pnts.size()-1].x, pnts[pnts.size()-1].y, pnts[0].x, pnts[0].y);
     }
+}
+void Vst::shape(float bright, vector<ofPoint> &pnts, bool connect){
+    for (int i=0; i<pnts.size()-1; i++){
+        line(bright, pnts[i].x, pnts[i].y, pnts[i+1].x, pnts[i+1].y);
+    }
+    if (connect){
+        line(bright, pnts[pnts.size()-1].x, pnts[pnts.size()-1].y, pnts[0].x, pnts[0].y);
+    }
+}
+
+void Vst::circle(float bright, float center_x, float center_y, float size, int num_pnts){
+    vector<ofVec2f> pnts;
+    float angle_step =(TWO_PI/(float)num_pnts);
+    for (int i=0; i<num_pnts; i++){
+        ofVec2f pnt;
+        float angle = angle_step  * i;
+        
+        pnt.x = 0 + sin(angle) * size;
+        pnt.y = 0 + cos(angle) * size;
+        pnts.push_back(pnt);
+    }
     
-    //point is not safe to call as it does not run things through clip
-//    point(0, pnts[0]);
-//    for (int i=1; i<pnts.size(); i++){
-//        point(bright, pnts[i]);
-//    }
-//
-//    if (connect){
-//        point(bright, pnts[0]);
-//    }
+    shape(bright, pnts, true);
 }
 
 void Vst::displayBuffer() {
@@ -232,7 +226,7 @@ ofVec2f Vst::getModelPoint(float x, float y){
     
     //if it all matches the baseline, we're not in a matrix and can just return the input values
     if (matches){
-        cout<<"nothing doing"<<endl;
+        //cout<<"nothing doing"<<endl;
         return ofVec2f(x,y);
     }
     
