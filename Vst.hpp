@@ -29,6 +29,7 @@ public:
     void circle(float bright, float center_x, float center_y, float size, int num_pnts);
     void shape(float bright, vector<ofVec2f> &pnts, bool connect);
     void shape(float bright, vector<ofPoint> &pnts, bool connect);
+    void triangle(float bright, float x1, float y1, float x2, float y2, float x3, float y3);
     
     void displayBuffer();
     

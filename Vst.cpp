@@ -157,6 +157,12 @@ void Vst::circle(float bright, float center_x, float center_y, float size, int n
     shape(bright, pnts, true);
 }
 
+void Vst::triangle(float bright, float x1, float y1, float x2, float y2, float x3, float y3){
+    line(bright, x1,y1, x2,y2);
+    line(bright, x2,y2, x3,y3);
+    line(bright, x3,y3, x1,y1);
+}
+
 void Vst::displayBuffer() {
     ofNoFill();
     send_to_display = true;
