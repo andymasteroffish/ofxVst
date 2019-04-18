@@ -33,15 +33,47 @@ void Vst::setup() {
     colorTransit = ofColor(255, 0, 0, 80);
     displayTransit = false;
     send_to_display = false;
+    
+    for (int i=0; i<VST_DEBUG_HISTORY; i++){
+        num_draws_history[i] = 0;
+    }
 }
 
 
 void Vst::display() {
+    
+    int num_lines = buffer.list.size();
+    
     buffer.update();
     displayBuffer();
     buffer.send();
     lastX = -1;       // TODO: Better choice for resetting lastX and lastY?
     lastY = -1;
+    
+    for (int i=VST_DEBUG_HISTORY-1; i >0; i--){
+        num_draws_history[i] = num_draws_history[i-1];
+    }
+    num_draws_history[0] = num_lines;
+    
+    avg_num_draws = 0;
+    for (int i=0; i<VST_DEBUG_HISTORY; i++){
+        avg_num_draws += num_draws_history[i];
+    }
+    avg_num_draws /= (float)VST_DEBUG_HISTORY;
+}
+
+void Vst::drawDebugInfo(){
+    float box_w = 100;
+    float box_h = 50;
+    ofSetColor(0,100);
+    ofFill();
+    ofDrawRectangle(0, 0, box_w, box_h);
+    
+    ofSetColor(0,255,0);
+    string output = "";
+    output += "this frame: "+ofToString(num_draws_history[0])+"\n";
+    output += "avrg draws: "+ofToString(avg_num_draws)+"\n";
+    ofDrawBitmapString(output, 5, 15);
 }
 
 void Vst::line(float bright, float x0, float y0, float x1, float y1) {

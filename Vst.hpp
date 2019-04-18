@@ -21,6 +21,7 @@ public:
     
     void setup();
     void display();
+    void drawDebugInfo();
     void line(float bright, float x0, float y0, float x1, float y1);
     void line(float bright, ofVec3f p0, ofVec3f p1);
     bool vectorOffscreen(float x, float y);
@@ -53,6 +54,10 @@ private:
     int lastX;
     int lastY;
     
+    //some debug info
+    #define VST_DEBUG_HISTORY 60
+    int num_draws_history[VST_DEBUG_HISTORY];
+    float avg_num_draws;
     
 };
 

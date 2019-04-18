@@ -24,6 +24,7 @@ public:
     
     vector<VstFrame> list;
     
+    
 private:
     vector<VstFrame> sort();
     
@@ -33,6 +34,7 @@ private:
     const static int MAX_FRAMES = (LENGTH - HEADER_LENGTH - TAIL_LENGTH - 1) / 4;
     unsigned char buffer[8192];// = new byte[8192];
     ofSerial serial;
+    
     
     
     
