@@ -63,7 +63,7 @@ void Vst::display() {
 }
 
 void Vst::drawDebugInfo(){
-    float box_w = 100;
+    float box_w = 150;
     float box_h = 50;
     ofSetColor(0,100);
     ofFill();
