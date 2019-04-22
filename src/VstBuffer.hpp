@@ -28,11 +28,12 @@ public:
 private:
     vector<VstFrame> sort();
     
+    //this value and the number in buffer was 8192 in the processing code
     const static int LENGTH = 8192;
     const static int HEADER_LENGTH = 4;
     const static int TAIL_LENGTH = 3;
     const static int MAX_FRAMES = (LENGTH - HEADER_LENGTH - TAIL_LENGTH - 1) / 4;
-    unsigned char buffer[8192];// = new byte[8192];
+    unsigned char buffer[8192];
     ofSerial serial;
     
     

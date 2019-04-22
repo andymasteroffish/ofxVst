@@ -41,13 +41,10 @@ bool VstBuffer::add(VstFrame frame) {
 }
 
 void VstBuffer::update() {
-    
-    //return; //testing no sort because it does some weird stuff
-    
-    //cout<<"now it "<<list.size()<<endl;
-    vector<VstFrame> temp = sort();
-    //cout<<"temp is "<<temp.size()<<endl;
     //this seems very suspect. why are we duplicating the list?
+    
+    vector<VstFrame> temp = sort();
+    
     //list.clear();
     //list.reserve(temp.size());
     for (int i=0; i<temp.size(); i++){
@@ -56,10 +53,16 @@ void VstBuffer::update() {
 }
 
 bool VstBuffer::add(int x, int y, int z) {
+    //cout<< list.size()<<" out of " << MAX_FRAMES<<endl;
+//    if (list.size() > 200) {
+//        cout<<"VstBuffer at capacity. Vector discarded."<<endl;
+//        return false;
+//    }
+    
     int size = list.size();
     // scale z from 8 bit to 6 bit
     z = z * 64 / 256;
-    if (list.size() < LENGTH - HEADER_LENGTH - TAIL_LENGTH - 1) {
+    if (list.size() < LENGTH - HEADER_LENGTH - TAIL_LENGTH - 1) {   //todo: this does not cut things off before they destroy themselves
         // If consecutive z values are zero, replace last to avoid transit redundancy
         if (z == 0 && size > 0 && list[size - 1].z == 0) {
             list[list.size() - 1] = VstFrame(x, y, z);
@@ -69,6 +72,7 @@ bool VstBuffer::add(int x, int y, int z) {
         }
         return true;
     }
+    cout<<"no good. too many lines"<<endl;
     return false;
 }
 
@@ -97,21 +101,11 @@ void VstBuffer::send() {
         // Data
         for (int i=0; i<list.size(); i++){
             VstFrame frame = list[i];
-        //for (VstFrame frame : this) {
             int v = (2) << 30 | (frame.z & 63) << 24 | (frame.x & 4095) << 12 | (frame.y & 4095) << 0;
-//            buffer[byte_count++] = (unsigned char) ((v >> 24) & 0xFF);
-//            buffer[byte_count++] = (unsigned char) ((v >> 16) & 0xFF);
-//            buffer[byte_count++] = (unsigned char) ((v >>  8) & 0xFF);
-//            buffer[byte_count++] = (unsigned char) ((v >>  0) & 0xFF);
             buffer[byte_count++] = ((v >> 24) & 0xFF);
             buffer[byte_count++] = ((v >> 16) & 0xFF);
             buffer[byte_count++] = ((v >>  8) & 0xFF);
             buffer[byte_count++] =  ((v >>  0) & 0xFF);
-            
-//            cout<<"frame"<<endl;
-//            cout<<" "<<((v >> 24) & 0xFF)<<endl;
-//            cout<<" "<<(char)((v >> 24) & 0xFF)<<endl;
-//            cout<<" "<<(unsigned char)((v >> 24) & 0xFF)<<endl;
         }
         
         // Tail
@@ -121,8 +115,29 @@ void VstBuffer::send() {
         buffer[byte_count++] = 1;
         
         // Send via serial
-        //cout<<" send now "<<byte_count<<endl;
-        serial.writeBytes(&buffer[0], byte_count);
+        //At least on mac, there seems to be an issue with ofSerial.writeBytes where it will only send 1024 bytes at a time
+        //to get around this, if the number of bytes exceeds that amount, I send them in backages
+        
+        //for reasons I truly do not understand, setting ofLog to verbose so that serial.writeBytes prints out how many bytes were printed will allow this to draw many more lines without crahsing the teensy on the vectrex
+        //I can push about 170 lines without ofSetLogLevel(OF_LOG_VERBOSE) and around 450 with it
+        ofLogLevel prev_log_level = ofGetLogLevel();
+        ofSetLogLevel(OF_LOG_VERBOSE);
+        
+        //cout<<"send now "<<byte_count<<endl;
+        int cutoff = 1024;
+        if (byte_count <= cutoff){
+            serial.writeBytes(&buffer[0], byte_count);
+        }else{
+            int pos = 0;
+            while(pos<byte_count){
+                int end = MIN(pos+cutoff, byte_count);
+                int length = end-pos;
+                serial.writeBytes(&buffer[pos], length);
+                pos += cutoff;
+            }
+        }
+        //put the log level back
+        ofSetLogLevel(prev_log_level);
     }else{
         cout<<"serial not Initialized"<<endl;
     }
