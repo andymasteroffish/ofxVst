@@ -118,13 +118,16 @@ void VstBuffer::send() {
         //At least on mac, there seems to be an issue with ofSerial.writeBytes where it will only send 1024 bytes at a time
         //to get around this, if the number of bytes exceeds that amount, I send them in backages
         
+        int cutoff = 1024;
+        
         //for reasons I truly do not understand, setting ofLog to verbose so that serial.writeBytes prints out how many bytes were printed will allow this to draw many more lines without crahsing the teensy on the vectrex
         //I can push about 170 lines without ofSetLogLevel(OF_LOG_VERBOSE) and around 450 with it
         ofLogLevel prev_log_level = ofGetLogLevel();
-        ofSetLogLevel(OF_LOG_VERBOSE);
-        
+        if (byte_count > cutoff){
+            ofSetLogLevel(OF_LOG_VERBOSE);
+        }
         //cout<<"send now "<<byte_count<<endl;
-        int cutoff = 1024;
+        
         if (byte_count <= cutoff){
             serial.writeBytes(&buffer[0], byte_count);
         }else{
