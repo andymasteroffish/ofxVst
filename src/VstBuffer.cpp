@@ -187,6 +187,7 @@ vector<VstFrame> VstBuffer::sort() {
                 endIndex = j;
                 nearestDistance = startDistance;
                 nearestFrame = startFrame;
+                reverseOrder = false;
                 //cout<<"less "<<i<<"  "<<j<<endl;
             }
             if (!startFrame.equals(endFrame) && endDistance < nearestDistance) {

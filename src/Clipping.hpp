@@ -5,6 +5,9 @@
 //  Created by Andrew Wallace on 4/8/19.
 //
 
+// This code is entirely based on the Processing VST library by Trammell Hudson
+// https://github.com/osresearch/vst
+
 #ifndef Clipping_hpp
 #define Clipping_hpp
 
